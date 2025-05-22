@@ -1,0 +1,30 @@
+name: Gravity
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  test:
+    name: Gravity
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📥 Install deps
+        uses: bahmutov/npm-install@v1
+
+      - name: build
+        run: npm run build
+
+      - name: Run Gravity
+        run: npx @gravityci/cli "build/**/*" --fingerprint "^.+(\-[0-9A-Za-z_\-]{8})\..+"
+        env:
+          GRAVITY_TOKEN: ${{ secrets.GRAVITY_TOKEN }}
